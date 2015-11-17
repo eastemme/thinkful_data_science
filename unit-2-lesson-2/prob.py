@@ -26,7 +26,8 @@ plt.close()
 # Create and save a histogram
 plt.figure(2)
 plt.hist(x, histtype='bar')
-plt.savefig("histogram.svg")
+# plt.savefig("histogram.svg")
+plt.show()
 plt.close()
 
 # Create and save a qqplot
@@ -34,3 +35,5 @@ plt.figure(3)
 qqplot = stats.probplot(x, plot=plt)
 plt.savefig("qqplot.svg")
 plt.close()
+
+
