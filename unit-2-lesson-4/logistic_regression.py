@@ -8,6 +8,7 @@ Created on Tue Nov 24 07:56:56 2015
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+import csv
 
 
 # ==============================
@@ -25,25 +26,29 @@ loansData['Loan.Length'] = [int(length[0:-7]) for length in loansData['Loan.Leng
 #create a new column called Fico Score with lower limit value
 loansData['FICO.Score'] = [int(val.split('-')[0]) for val in loansData['FICO.Range']]
 
+# create a new column called IR-TF which indicates if the interest rate is less than 12%
+loansData['IR_TF'] = [(interest < .12) for interest in loansData['Interest.Rate']]
 
-# ==============================
-# CREATING THE LINEAR MODEL
+# create a column for a constant intercept
+loansData['Intercept'] = 1
+
+# create csv with loan data 
+test = loansData.to_csv('loansData_clean.csv', header=True, index=False)
+ind_vars = list(loansData.columns)
 
 intrate = loansData['Interest.Rate']
 loanamt = loansData['Amount.Requested']
-fico = loansData['FICO.Score']
+fico = loansData['FICO.Score'] 
 
-y = np.matrix(intrate).transpose()
 
-x1 = np.matrix(fico).transpose()
-x2 = np.matrix(loanamt).transpose()
+# ==============================
+# CREATING A LOGISTIC REGRESSION
+# Determine whether or not a $10k loan with an interest rate less than or equal to 12% to a person with a FICO score of 750.
 
-# Create two dimensional array of independent variables
-x = np.column_stack([x1,x2])
+# read data from clean data into dataframe
+df = pd.DataFrame(test, columns=ind_vars)
 
-# Create linear model
-X = sm.add_constant(x)
-model = sm.OLS(y,X)
-f = model.fit()
+# Define the logistic regression model
+logit = sm.Logit(df['IR_TF'], df[ind_vars])
 
-print f.summary()
+
